@@ -1,0 +1,37 @@
+{
+  "name": "kitsune_botto",
+  "version": "1.0.0",
+  "main": "src/Kitsune.ts",
+  "license": "MIT",
+  "scripts": {
+    "start": "NODE_ENV=production ts-node .",
+    "dev": "nodemon -e ts,json --exec NODE_ENV=development ts-node .",
+    "prec": "prettier --write .",
+    "c": "git add . && git commit -m",
+    "p": "git push origin"
+  },
+  "dependencies": {
+    "@typeit/discord": "^4.0.8",
+    "@types/express": "^4.17.7",
+    "@types/shortid": "^0.0.29",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "discord.js": "12.2.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.0",
+    "morgan-body": "^2.5.1",
+    "prettier": "^2.0.5",
+    "shortid": "^2.2.15",
+    "slugify": "^1.4.5",
+    "ts-node": "^8.10.2",
+    "typeorm": "^0.2.25",
+    "typescript": "^3.9.7",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

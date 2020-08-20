@@ -1,0 +1,8 @@
+config.ts
+config.dev.ts
+config.prod.ts
+node_modules
+discord.ts
+logs/
+static/
+yarn-error.log
