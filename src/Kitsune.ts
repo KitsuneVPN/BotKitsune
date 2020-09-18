@@ -114,9 +114,6 @@ export class Kitsune {
       stream: log,
     });
 
-    // passing connection is a bit of a cheating, since node.js does weird stuff
-    // this.server.register(MainController, { db: this.connection });
-
     const staticRoute = path.join(__dirname, "../", "static");
     if (fs.existsSync(staticRoute)) {
       logger.info("Registering static route for folder static/");
