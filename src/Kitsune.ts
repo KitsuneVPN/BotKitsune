@@ -4,12 +4,13 @@ import { createConnection, Connection } from "typeorm";
 import fs from "fs";
 import path from "path";
 import { botToken, expressPort, mongoDbUri } from "../config";
-import express, { Application } from "express";
-import bodyParser from "body-parser";
-import cors from "cors";
+import fastify, { FastifyInstance } from "fastify";
+import fastifyStatic from "fastify-static";
+import fastifyCors from "fastify-cors";
 import morganBody from "morgan-body";
 import { Client } from "@typeit/discord";
 import MainController from "./http/controllers/MainController";
+import { IncomingMessage, Server, ServerResponse } from "http";
 
 const loggerFormat = format.printf(({ level, message, timestamp }) => {
   return `${timestamp} | ${level}: ${message}`;
@@ -41,7 +42,7 @@ export const logger = winston.createLogger({
 
 export class Kitsune {
   connection: Connection;
-  server: Application = express();
+  server: FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify();
   discord: Client;
 
   constructor() {
@@ -91,8 +92,7 @@ export class Kitsune {
   }
 
   async initExpress() {
-    this.server.use(cors());
-    this.server.use(bodyParser.json());
+    this.server.register(fastifyCors);
 
     morganBody(this.server, {
       logIP: true,
@@ -117,22 +117,24 @@ export class Kitsune {
     const staticRoute = path.join(__dirname, "../", "static");
     if (fs.existsSync(staticRoute)) {
       logger.info("Registering static route for folder static/");
-      this.server.use(express.static(staticRoute));
+      this.server.register(fastifyStatic, {
+        root: staticRoute,
+        wildcard: "/**",
+      });
     } else {
       logger.warn(
         "Static route doesn't exist. Make sure you created the 'static' folder."
       );
     }
 
-    // passing connection is a bit of a cheating, since node.js does weird stuff
-    this.server.use(new MainController(this.connection).route());
+    this.server.register(MainController, { db: this.connection });
 
     try {
-      await this.server.listen(expressPort);
+      await this.server.listen(expressPort, "127.0.0.1");
       logger.info(`Server is started. Listening on port ${expressPort}`);
     } catch (e) {
       logger.error(`Unable to start server on port ${expressPort}`);
-      logger.error(e);
+      logger.error(e.message);
       process.exit(1);
     }
   }
@@ -152,7 +154,7 @@ export class Kitsune {
       logger.info("Successfully connected to the MongoDB database.");
     } catch (e) {
       logger.error("Unable to connect to the MongoDB database.");
-      logger.error(e);
+      logger.error(e.message);
       process.exit(1);
     }
   }
